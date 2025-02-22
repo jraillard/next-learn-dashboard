@@ -85,6 +85,9 @@ export async function fetchCardData() {
 }
 
 const ITEMS_PER_PAGE = 6;
+interface InvoicesTableWithCount extends InvoicesTable {
+  total_count: number;
+}
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number,
@@ -92,7 +95,9 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable[]>`
+    // Avoir : le total count (sur chaque ligne parcontre ..) + les invoices
+    const invoicesOptimized = await sql<InvoicesTableWithCount[]>`
+      WITH filtered_invoices AS (
       SELECT
         invoices.id,
         invoices.amount,
@@ -109,11 +114,18 @@ export async function fetchFilteredInvoices(
         invoices.amount::text ILIKE ${`%${query}%`} OR
         invoices.date::text ILIKE ${`%${query}%`} OR
         invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+      )
+      SELECT 
+        i.*,
+        COUNT(*) OVER()::integer as total_count
+      FROM filtered_invoices i
+      ORDER BY i.date DESC
+      LIMIT ${ITEMS_PER_PAGE} 
+      OFFSET ${offset}
     `;
 
-    return invoices;
+    const totalPages = Math.ceil((invoicesOptimized[0]?.total_count ?? 0) / ITEMS_PER_PAGE);
+    return { invoicesOptimized, totalPages };
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');

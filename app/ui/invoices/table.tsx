@@ -7,20 +7,26 @@ import Image from "next/image";
 type InvoicesTableProps = {
   query: string;
   currentPage: number;
+  onTotalPagesUpdate: (totalPages: number) => void;
 };
 
 export default async function InvoicesTable({
   query,
   currentPage,
+  onTotalPagesUpdate,
 }: Readonly<InvoicesTableProps>) {
-  const invoices = await fetchFilteredInvoices(query, currentPage);
+  const { invoicesOptimized, totalPages } = await fetchFilteredInvoices(
+    query,
+    currentPage
+  );
+  onTotalPagesUpdate(totalPages);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {invoices?.map((invoice) => (
+            {invoicesOptimized.map((invoice) => (
               <div
                 key={invoice.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
