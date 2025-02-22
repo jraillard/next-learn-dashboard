@@ -1,6 +1,7 @@
 import { fetchCustomers, fetchInvoiceById } from "@/app/lib/data";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
 import Form from "@/app/ui/invoices/edit-form";
+import { notFound } from "next/navigation";
 
 export default async function Page(
   props: Readonly<{ params: Promise<{ id: string }> }>
@@ -11,6 +12,12 @@ export default async function Page(
     fetchInvoiceById(id),
     fetchCustomers(),
   ]);
+
+  // Page par défaut de next customisable en créant un fichier not-found.tsx
+  // Par défaut : 404 | This page could not be found.
+  if (!invoice) {
+    notFound();
+  }
 
   return (
     <main>
