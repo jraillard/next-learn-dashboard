@@ -1,4 +1,4 @@
-import { LatestInvoice } from "@/app/lib/definitions";
+import { fetchLatestInvoices } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
@@ -24,11 +24,9 @@ import Image from "next/image";
   - ServerComponent (children) qui affiche les données filtrées
   - Le Server Component est Suspense dans la main page => au premier rendu y'aura : Les filtres (client chargé en premier) + contenu statique de la page + Suspense FallBack PUIS contenu du Suspense
 */
-export default async function LatestInvoices({
-  latestInvoices,
-}: Readonly<{
-  latestInvoices: LatestInvoice[];
-}>) {
+export default async function LatestInvoices() {
+  const latestInvoices = await fetchLatestInvoices();
+
   return (
     <div className="flex w-full flex-col md:col-span-4">
       <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>

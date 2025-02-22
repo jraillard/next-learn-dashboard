@@ -17,8 +17,8 @@ export async function fetchRevenue() {
     // Don't do this in production :)
 
     // Ceci simule une latence et surtout l'importance d'avoir des Suspense (RSC) ou state isLoading (CSR) sur les traitements async
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    console.log('Fetching revenue data...');
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const data = await sql<Revenue[]>`SELECT * FROM revenue`;
 
